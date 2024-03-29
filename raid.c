@@ -3,6 +3,7 @@
 #include <string.h>
 
 #define DISK_SIZE 3
+#define DISK_QUANTITY 3
 #define ROWS 5
 #define COLS 5
 
@@ -57,11 +58,20 @@ void readBitDisksFromFile(const char *filename)
     fclose(file);
 }
 
-void writeMatrixToFile(int matrix[ROWS][COLS], const char *filename)
+void writeBitsToFile()
 {
-    FILE *file;
+    system("mkdir -p disks");
 
+    FILE *file;
     file = fopen(filename, "w");
+    int diskBits[DISK_QUANTITY];
+    printf("Digite os bits dos dados no disco,linha por linha, pressionando Enter apos cada linha:\n");
+
+    for (int i = 0; i < DISK_QUANTITY; i++) {
+        printf("Bits - Disco %d: ", i + 1);
+        scanf("%d", &diskBits[i]);
+        getchar();
+    }
 
     if (file == NULL)
     {
@@ -69,51 +79,13 @@ void writeMatrixToFile(int matrix[ROWS][COLS], const char *filename)
         exit(1);
     }
 
-    fprintf(file, "** RAID 4 - SIMULATOR **\n");
-
-    for (int i = 0; i < ROWS; i++)
+    for (int i = 0; i < DISK_QUANTITY; i++)
     {
-        for (int j = 0; j < COLS; j++)
-        {
-            fprintf(file, "%d ", matrix[i][j]);
-        }
+        fprintf(file, "%d ", diskBits[i]);
         fprintf(file, "\n");
     }
 
-    fclose(file);
-}
-
-void readMatrixFromFile(int matrix[ROWS][COLS], const char *filename)
-{
-    FILE *file;
-    char line[100];
-    int row = 0;
-
-    file = fopen(filename, "r");
-
-    if (file == NULL)
-    {
-        printf("Erro ao abrir o arquivo!.\n");
-        exit(1);
-    }
-
-    fgets(line, sizeof(line), file);
-
-    while (fgets(line, sizeof(line), file) && row < ROWS)
-    {
-        char *token = strtok(line, " ");
-        int col = 0;
-
-        while (token != NULL && col < COLS)
-        {
-            matrix[row][col] = atoi(token);
-            col++;
-            token = strtok(NULL, " ");
-        }
-
-        row++;
-    }
-
+    printf("Dados inseridos com sucesso!.\n");
     fclose(file);
 }
 
@@ -130,7 +102,8 @@ void menu()
         printf("1 - INSERIR DADOS\n");
         printf("2 - REMOVER DADOS\n");
         printf("3 - CONSULTAR DADOS\n");
-        printf("4 - SAIR\n");
+        printf("4 - RECUPERAR DADO PERDIDO\n");
+        printf("5 - SAIR\n");
 
         printf("Digite uma opção: \n");
         scanf("%d", &option);
@@ -138,6 +111,7 @@ void menu()
         switch (option)
         {
         case 1:
+            writeBitsToFile();
             break;
         case 2:
             break;
@@ -145,6 +119,8 @@ void menu()
             readBitDisksFromFile(filename);
             break;
         case 4:
+            break;
+        case 5:
             break;
         default:
             readBitDisksFromFile(filename);
@@ -156,37 +132,6 @@ void menu()
 
 int main()
 {
-    int matrix[ROWS][COLS];
-    int option;
-
-    system("mkdir -p disks");
-
     menu();
-    // printf("Digite os blocos do disco linha por linha, pressionando Enter apos cada linha:\n");
-
-    // for (int i = 0; i < ROWS; i++) {
-    //     printf("Blocos da linha %d: ", i + 1);
-    //     for (int j = 0; j < COLS; j++) {
-    //         scanf("%d", &matrix[i][j]);
-    //     }
-    //     getchar();
-    // }
-
-    // writeMatrixToFile(matrix, filename);
-
-    // printf("Dado foi gravado no disco!\n");
-
-    // readMatrixFromFile(matrix, filename);
-
-    // printf("Discos contidos no sistema lida do arquivo:\n");
-
-    // for (int i = 0; i < ROWS; i++) {
-    //     for (int j = 0; j < COLS; j++) {
-    //         // TODO - COLORIR BLOCO DE PARIDADE
-    //         printf("%d ", matrix[i][j]);
-    //     }
-    //     printf("\n");
-    // }    
-
     return 0;
 }
