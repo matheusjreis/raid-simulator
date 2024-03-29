@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define ROWS 3
 #define COLS 3
@@ -14,8 +15,8 @@ void writeMatrixToFile(int matrix[ROWS][COLS], const char *filename) {
         exit(1);
     }
     
-    fprintf(file, "%d %d\n", ROWS, COLS);
-    
+    fprintf(file, "** RAID 4 - SIMULATOR **\n");
+
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
             fprintf(file, "%d ", matrix[i][j]);
@@ -27,16 +28,22 @@ void writeMatrixToFile(int matrix[ROWS][COLS], const char *filename) {
 }
 
 int main() {
-    int matrix[ROWS][COLS] = {
-        {1, 2, 3},
-        {4, 5, 6},
-        {7, 8, 9}
-    };
+    int matrix[ROWS][COLS];
     
     const char *folder = "disks";
-    const char *filename = "disks/matrix.txt";
+    const char *filename = "disks/raid_output.txt";
     
     system("mkdir -p disks");
+    
+    printf("Digite os blocos do disco linha por linha, pressionando Enter apos cada linha:\n");
+    
+    for (int i = 0; i < ROWS; i++) {
+        printf("Blocos da linha %d: ", i + 1);
+        for (int j = 0; j < COLS; j++) {
+            scanf("%d", &matrix[i][j]); 
+        }
+        getchar(); 
+    }
     
     writeMatrixToFile(matrix, filename);
     
