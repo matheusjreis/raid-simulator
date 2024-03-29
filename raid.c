@@ -27,6 +27,37 @@ void writeMatrixToFile(int matrix[ROWS][COLS], const char *filename) {
     fclose(file);
 }
 
+void readMatrixFromFile(int matrix[ROWS][COLS], const char *filename) {
+    FILE *file;
+    
+    file = fopen(filename, "r");
+    
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo!.\n");
+        exit(1);
+    }
+
+    char line[100];
+    int row = 0;
+
+    fgets(line, sizeof(line), file);
+
+    while (fgets(line, sizeof(line), file) && row < ROWS) {
+        char *token = strtok(line, " ");
+        int col = 0;
+
+        while (token != NULL && col < COLS) {
+            matrix[row][col] = atoi(token);
+            col++;
+            token = strtok(NULL, " ");
+        }
+
+        row++;
+    }
+
+    fclose(file);
+}
+
 int main() {
     int matrix[ROWS][COLS];
     
@@ -48,6 +79,17 @@ int main() {
     writeMatrixToFile(matrix, filename);
     
     printf("Dado foi gravado no disco!\n");
+
+    readMatrixFromFile(matrix, filename);
+
+    printf("Discos contidos no sistema lida do arquivo:\n");
+
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            printf("%d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
     
     return 0;
 }
