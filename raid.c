@@ -58,6 +58,38 @@ void readBitDisksFromFile(const char *filename)
     fclose(file);
 }
 
+int *getBitsOnDisk()
+{
+    char line[256];
+    int lineBit = 1;
+    int *bitDisks = NULL;
+    int linesQuantity = 0;
+    int diskCounter = 0;
+
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        perror("Error opening file");
+        return;
+    }
+
+    while (fgets(line, sizeof(line), file))
+    {
+        linesQuantity++;
+    }
+
+    bitDisks = (int *)malloc(linesQuantity * sizeof(int));
+    rewind(file);
+
+    while (fgets(line, sizeof(line), file))
+    {
+        bitDisks[diskCounter] = atoi(line);
+        diskCounter++;
+    }
+    fclose(file);
+    return bitDisks;
+}
+
 void writeBitsToFile()
 {
     system("mkdir -p disks");
@@ -67,7 +99,8 @@ void writeBitsToFile()
     int diskBits[DISK_QUANTITY];
     printf("Digite os bits dos dados no disco,linha por linha, pressionando Enter apos cada linha:\n");
 
-    for (int i = 0; i < DISK_QUANTITY; i++) {
+    for (int i = 0; i < DISK_QUANTITY; i++)
+    {
         printf("Bits - Disco %d: ", i + 1);
         scanf("%d", &diskBits[i]);
         getchar();
@@ -81,26 +114,56 @@ void writeBitsToFile()
 
     for (int i = 0; i < DISK_QUANTITY; i++)
     {
-        fprintf(file, "%d ", diskBits[i]);
-        fprintf(file, "\n");
+        fprintf(file, "%d", diskBits[i]);
+        if(i != DISK_QUANTITY - 1){
+            fprintf(file, "\n");
+        }
     }
 
     printf("Dados inseridos com sucesso!.\n");
     fclose(file);
 }
 
+void addLineToFile(int line) {
+    FILE *file = fopen(filename, "a");
+    
+    if (file == NULL) {
+        printf("Erro: Não foi possível abrir arquivo %s\n", filename);
+        return;
+    }
+
+    fprintf(file, "\n%d", line);
+
+    fclose(file);
+}
+
+void recoveryBitData(){
+    int* bitsOnDisk = getBitsOnDisk();
+    int arrayLength = sizeof(bitsOnDisk) / sizeof(bitsOnDisk[0]);
+    int xorResult = 0;
+
+    for (int i = 0; i <= arrayLength; i++)
+    {
+        printf("%d \n",bitsOnDisk[i]);
+        xorResult ^= bitsOnDisk[i];
+    }
+
+    addLineToFile(xorResult);
+    printf("VALOR RECUPERADO: || %d ||\n", xorResult);
+}
+
+
 void menu()
 {
     int option = 1;
 
-    while (option != 4)
+    while (option != 5)
     {
         printf("************************\n");
         printf("** RAID 5 - SIMULATOR **\n");
         printf("************************\n");
 
         printf("1 - INSERIR DADOS\n");
-        printf("2 - REMOVER DADOS\n");
         printf("3 - CONSULTAR DADOS\n");
         printf("4 - RECUPERAR DADO PERDIDO\n");
         printf("5 - SAIR\n");
@@ -119,8 +182,7 @@ void menu()
             readBitDisksFromFile(filename);
             break;
         case 4:
-            break;
-        case 5:
+            recoveryBitData();
             break;
         default:
             readBitDisksFromFile(filename);
