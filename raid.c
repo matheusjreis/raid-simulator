@@ -12,8 +12,6 @@ const char *filename = "disks/raid_output.txt";
 
 void writeDiskBitsToFile(int diskBits[DISK_SIZE], const char *filename)
 {
-
-    // TODO - CHECK IF  ITS INTEGER AND ITS HAS ONLY 1s AND 0s
     FILE *file;
 
     file = fopen(filename, "w");
@@ -41,7 +39,7 @@ void readBitDisksFromFile(const char *filename)
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
-        perror("Error opening file");
+        perror("Erro ao abrir o arquivo");
         return;
     }
 
@@ -69,7 +67,7 @@ int *getBitsOnDisk()
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
-        perror("Error opening file");
+        perror("Erro ao abrir o arquivo");
         return;
     }
 
@@ -121,20 +119,73 @@ void writeBitsToFile()
     }
 
     printf("Dados inseridos com sucesso!.\n");
+
     fclose(file);
+
+    backupDiskData();
 }
 
 void addLineToFile(int line) {
     FILE *file = fopen(filename, "a");
     
     if (file == NULL) {
-        printf("Erro: Não foi possível abrir arquivo %s\n", filename);
+        printf("Não foi possível abrir arquivo %s\n", filename);
         return;
     }
 
     fprintf(file, "\n%d", line);
 
     fclose(file);
+}
+
+void backupDiskData() {
+    int* bitsOnDisk = getBitsOnDisk();
+    int arrayLength = sizeof(bitsOnDisk) / sizeof(bitsOnDisk[0]);
+    int xorResult = 0;
+
+    for (int i = 0; i <= arrayLength; i++)
+    {
+        xorResult ^= bitsOnDisk[i];
+    }
+
+    addLineToFile(xorResult);
+}
+
+void removeLineFromFile(int lineToRemove) {
+    FILE *inputFile = fopen(filename, "r");
+    if (inputFile == NULL) {
+        printf("Não foi possível abrir o arquivo %s\n", filename);
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.txt", "w");
+    if (tempFile == NULL) {
+        fclose(inputFile);
+        printf("Não foi possível criar arquivo temporário\n");
+        return;
+    }
+
+    char buffer[1024];
+    int lineCount = 0;
+
+    while (fgets(buffer, sizeof(buffer), inputFile)) {
+        lineCount++;
+        if (lineCount != lineToRemove) {
+            fputs(buffer, tempFile);
+        }
+    }
+
+    fclose(inputFile);
+    fclose(tempFile);
+
+    if (remove(filename) != 0) {
+        printf("Não foi possível remover arquivo! %s\n", filename);
+        return;
+    }
+
+    if (rename("temp.txt", filename) != 0) {
+        printf("Não foi possível renomear arquivo\n");
+    }
 }
 
 void recoveryBitData(){
@@ -144,7 +195,6 @@ void recoveryBitData(){
 
     for (int i = 0; i <= arrayLength; i++)
     {
-        printf("%d \n",bitsOnDisk[i]);
         xorResult ^= bitsOnDisk[i];
     }
 
@@ -152,6 +202,14 @@ void recoveryBitData(){
     printf("VALOR RECUPERADO: || %d ||\n", xorResult);
 }
 
+void eraseDisk(){
+    int diskNumber;
+    printf("\nQual disco você gostaria de remover?\n");
+    scanf("%d", &diskNumber);
+    removeLineFromFile(diskNumber);
+
+    printf("DISCO %d DELETADO COM SUCESSO!\n", diskNumber);
+}
 
 void menu()
 {
@@ -164,6 +222,7 @@ void menu()
         printf("************************\n");
 
         printf("1 - INSERIR DADOS\n");
+        printf("2 - REMOVER DADO\n");
         printf("3 - CONSULTAR DADOS\n");
         printf("4 - RECUPERAR DADO PERDIDO\n");
         printf("5 - SAIR\n");
@@ -177,6 +236,7 @@ void menu()
             writeBitsToFile();
             break;
         case 2:
+            eraseDisk(option);
             break;
         case 3:
             readBitDisksFromFile(filename);
