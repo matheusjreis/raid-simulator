@@ -1,3 +1,5 @@
+/**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -218,7 +220,7 @@ void menu()
     while (option != 5)
     {
         printf("************************\n");
-        printf("** RAID 5 - SIMULATOR **\n");
+        printf("** RAID 4 - SIMULATOR **\n");
         printf("************************\n");
 
         printf("1 - INSERIR DADOS\n");
